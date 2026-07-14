@@ -1,0 +1,1274 @@
+mappings:
+  - name: dim_product_category
+    sources:
+      - table: raw.productcategory
+        ignore_columns:
+          - rowguid
+          - modifieddate
+
+    targets:
+      - table: ADVENTUREWORKSDW.TARGET.DIMPRODUCTCATEGORY
+        ignore_columns:
+          - ProductCategoryKey               # Excluded because it is an Identity/Surrogate Key
+          - SpanishProductCategoryName       # Excluded unless you test translation lookups
+          - FrenchProductCategoryName        # Excluded unless you test translation lookups
+
+    source_where:
+    target_where:
+
+    compare_columns:
+      - source_col: productcategoryid
+        target_col: ProductCategoryAlternateKey
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: name
+        target_col: EnglishProductCategoryName
+        data_type: string
+        checks:
+          - null_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+  - name: dim_product_subcategory
+    sources:
+      - table: raw.productsubcategory
+
+    targets:
+      - table: ADVENTUREWORKSDW.TARGET.DIMPRODUCTSUBCATEGORY
+
+    source_where:
+    target_where:
+
+    compare_columns:
+      - source_col: productsubcategoryid
+        target_col: ProductSubcategoryAlternateKey
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: productcategoryid
+        target_col: ProductCategoryKey
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: name
+        target_col: EnglishProductSubcategoryName
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+  - name: dim_currency
+    sources:
+      - table: raw.currency
+
+    targets:
+      - table: ADVENTUREWORKSDW.TARGET.DIMCURRENCY
+
+    source_where:
+    target_where:
+
+    compare_columns:
+      - source_col: currencycode
+        target_col: CurrencyAlternateKey
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: name
+        target_col: CurrencyName
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+  - name: dim_sales_territory
+    sources:
+      - table: raw.salesterritory
+
+    targets:
+      - table: ADVENTUREWORKSDW.TARGET.DIMSALESTERRITORY
+
+    source_where:
+    target_where:
+
+    compare_columns:
+      - source_col: territoryid
+        target_col: SalesTerritoryAlternateKey
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: name
+        target_col: SalesTerritoryRegion
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+      - source_col: countryregioncode
+        target_col: SalesTerritoryCountry
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: '"group"'
+        target_col: SalesTerritoryGroup
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+  - name: dim_promotion
+    sources:
+      - table: raw.specialoffer
+
+    targets:
+      - table: ADVENTUREWORKSDW.TARGET.DIMPROMOTION
+
+    source_where:
+    target_where:
+
+    compare_columns:
+      - source_col: specialofferid
+        target_col: PromotionAlternateKey
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: description
+        target_col: EnglishPromotionName
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+      - source_col: discountpct
+        target_col: DiscountPct
+        data_type: decimal
+        tolerance: 0.0001
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+
+      - source_col: type
+        target_col: EnglishPromotionType
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: category
+        target_col: EnglishPromotionCategory
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: startdate
+        target_col: StartDate
+        data_type: date
+        checks:
+          - null_count
+          - min
+          - max
+          - exact_match
+          - hash
+
+      - source_col: enddate
+        target_col: EndDate
+        data_type: date
+        checks:
+          - null_count
+          - min
+          - max
+          - exact_match
+          - hash
+
+      - source_col: minqty
+        target_col: MinQty
+        data_type: integer
+        checks:
+          - null_count
+          - min
+          - max
+          - exact_match
+          - hash
+
+      - source_col: maxqty
+        target_col: MaxQty
+        data_type: integer
+        checks:
+          - null_count
+          - min
+          - max
+          - exact_match
+          - hash
+
+  - name: dim_sales_reason
+    sources:
+      - table: raw.salesreason
+
+    targets:
+      - table: ADVENTUREWORKSDW.TARGET.DIMSALESREASON
+
+    source_where:
+    target_where:
+
+    compare_columns:
+      - source_col: salesreasonid
+        target_col: SalesReasonAlternateKey
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: name
+        target_col: SalesReasonName
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+      - source_col: reasontype
+        target_col: SalesReasonType
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+  - name: dim_product
+    sources:
+      - table: raw.dim_product_validation
+
+    targets:
+      - table: ADVENTUREWORKSDW.TARGET.DIMPRODUCT_VALIDATION
+
+    source_where:
+    target_where:
+
+    compare_columns:
+      - source_col: productalternatekey
+        target_col: PRODUCTALTERNATEKEY
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: productsubcategoryid
+        target_col: PRODUCTSUBCATEGORYKEY
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: weightunitmeasurecode
+        target_col: WEIGHTUNITMEASURECODE
+        data_type: string
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: sizeunitmeasurecode
+        target_col: SIZEUNITMEASURECODE
+        data_type: string
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: englishproductname
+        target_col: ENGLISHPRODUCTNAME
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+      - source_col: standardcost
+        target_col: STANDARDCOST
+        data_type: numeric
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: finishedgoodsflag
+        target_col: FINISHEDGOODSFLAG
+        data_type: boolean
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: color
+        target_col: COLOR
+        data_type: string
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: safetystocklevel
+        target_col: SAFETYSTOCKLEVEL
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: reorderpoint
+        target_col: REORDERPOINT
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: listprice
+        target_col: LISTPRICE
+        data_type: numeric
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: size
+        target_col: SIZE
+        data_type: string
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: weight
+        target_col: WEIGHT
+        data_type: numeric
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: daystomanufacture
+        target_col: DAYSTOMANUFACTURE
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: productline
+        target_col: PRODUCTLINE
+        data_type: string
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: class
+        target_col: CLASS
+        data_type: string
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: style
+        target_col: STYLE
+        data_type: string
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+  - name: dim_geography
+    sources:
+      - table: raw.dim_geography_validation
+
+    targets:
+      - table: ADVENTUREWORKSDW.TARGET.DIMGEOGRAPHY_VALIDATION
+
+    source_where:
+    target_where:
+
+    compare_columns:
+      - source_col: geographyid
+        target_col: GEOGRAPHYID
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: city
+        target_col: CITY
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+      - source_col: stateprovincecode
+        target_col: STATEPROVINCECODE
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: stateprovincename
+        target_col: STATEPROVINCENAME
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+      - source_col: countryregionname
+        target_col: ENGLISHCOUNTRYREGIONNAME
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+      - source_col: salesterritorykey
+        target_col: SALESTERRITORYKEY
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+  - name: dim_employee
+    sources:
+      - table: raw.dim_employee_validation
+
+    targets:
+      - table: ADVENTUREWORKSDW.TARGET.DIMEMPLOYEE_VALIDATION
+
+    source_where:
+    target_where:
+
+    compare_columns:
+      - source_col: nationalidnumber
+        target_col: NATIONALIDNUMBER
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: loginid
+        target_col: LOGINID
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: firstname
+        target_col: FIRSTNAME
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+      - source_col: middlename
+        target_col: MIDDLENAME
+        data_type: string
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: lastname
+        target_col: LASTNAME
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+      - source_col: namestyle
+        target_col: NAMESTYLE
+        data_type: boolean
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: title
+        target_col: TITLE
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: hiredate
+        target_col: HIREDATE
+        data_type: date
+        checks:
+          - null_count
+          - min
+          - max
+          - exact_match
+          - hash
+
+      - source_col: birthdate
+        target_col: BIRTHDATE
+        data_type: date
+        checks:
+          - null_count
+          - min
+          - max
+          - exact_match
+          - hash
+
+      - source_col: maritalstatus
+        target_col: MARITALSTATUS
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: gender
+        target_col: GENDER
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: departmentname
+        target_col: DEPARTMENTNAME
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: startdate
+        target_col: STARTDATE
+        data_type: date
+        checks:
+          - null_count
+          - min
+          - max
+          - exact_match
+          - hash
+
+  - name: dim_customer
+    sources:
+      - table: raw.dim_customer_validation
+
+    targets:
+      - table: ADVENTUREWORKSDW.TARGET.DIMCUSTOMER_VALIDATION
+
+    source_where:
+    target_where:
+
+    compare_columns:
+      - source_col: customeralternatekey
+        target_col: CUSTOMERALTERNATEKEY
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: title
+        target_col: TITLE
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: firstname
+        target_col: FIRSTNAME
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+      - source_col: middlename
+        target_col: MIDDLENAME
+        data_type: string
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: lastname
+        target_col: LASTNAME
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+      - source_col: namestyle
+        target_col: NAMESTYLE
+        data_type: boolean
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: suffix
+        target_col: SUFFIX
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: emailaddress
+        target_col: EMAILADDRESS
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: addressline1
+        target_col: ADDRESSLINE1
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+      - source_col: addressline2
+        target_col: ADDRESSLINE2
+        data_type: string
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: phone
+        target_col: PHONE
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+  - name: dim_reseller
+    sources:
+      - table: raw.dim_reseller_validation
+
+    targets:
+      - table: ADVENTUREWORKSDW.TARGET.DIMRESELLER_VALIDATION
+
+    source_where:
+    target_where:
+
+    compare_columns:
+      - source_col: reselleralternatekey
+        target_col: RESELLERALTERNATEKEY
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: resellername
+        target_col: RESELLERNAME
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+      - source_col: addressline1
+        target_col: ADDRESSLINE1
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - min_length
+          - max_length
+          - exact_match
+          - hash
+
+      - source_col: addressline2
+        target_col: ADDRESSLINE2
+        data_type: string
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+  - name: dim_date
+    sources:
+      - table: raw.dim_date_validation
+
+    targets:
+      - table: ADVENTUREWORKSDW.TARGET.DIMDATE_VALIDATION
+
+    source_where:
+    target_where:
+
+    compare_columns:
+      - source_col: datekey
+        target_col: DATEKEY
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: fulldatealternatekey
+        target_col: FULLDATEALTERNATEKEY
+        data_type: date
+        checks:
+          - null_count
+          - min
+          - max
+          - exact_match
+          - hash
+
+      - source_col: daynumberofweek
+        target_col: DAYNUMBEROFWEEK
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: englishdaynameofweek
+        target_col: ENGLISHDAYNAMEOFWEEK
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: daynumberofmonth
+        target_col: DAYNUMBEROFMONTH
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: daynumberofyear
+        target_col: DAYNUMBEROFYEAR
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: weeknumberofyear
+        target_col: WEEKNUMBEROFYEAR
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: englishmonthname
+        target_col: ENGLISHMONTHNAME
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: monthnumberofyear
+        target_col: MONTHNUMBEROFYEAR
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: calendarquarter
+        target_col: CALENDARQUARTER
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: calendaryear
+        target_col: CALENDARYEAR
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: calendarsemester
+        target_col: CALENDARSEMESTER
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+  - name: fact_internet_sales
+    sources:
+      - table: raw.fact_internet_sales_validation
+
+    targets:
+      - table: ADVENTUREWORKSDW.TARGET.FACTINTERNETSALES_VALIDATION
+
+    source_where:
+    target_where:
+
+    compare_columns:
+      - source_col: salesordernumber
+        target_col: SALESORDERNUMBER
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: salesorderlinenumber
+        target_col: SALESORDERLINENUMBER
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: orderquantity
+        target_col: ORDERQUANTITY
+        data_type: integer
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - exact_match
+          - hash
+
+      - source_col: unitprice
+        target_col: UNITPRICE
+        data_type: numeric
+        tolerance: 0.01
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+
+      - source_col: unitpricediscountpct
+        target_col: UNITPRICEDISCOUNTPCT
+        data_type: numeric
+        tolerance: 0.0001
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+
+      - source_col: extendedamount
+        target_col: EXTENDEDAMOUNT
+        data_type: numeric
+        tolerance: 0.01
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+
+      - source_col: discountamount
+        target_col: DISCOUNTAMOUNT
+        data_type: numeric
+        tolerance: 0.01
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+
+      - source_col: salesamount
+        target_col: SALESAMOUNT
+        data_type: numeric
+        tolerance: 0.01
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+
+      - source_col: taxamt
+        target_col: TAXAMT
+        data_type: numeric
+        tolerance: 0.01
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+
+      - source_col: freight
+        target_col: FREIGHT
+        data_type: numeric
+        tolerance: 0.01
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+
+      - source_col: orderdate
+        target_col: ORDERDATE
+        data_type: date
+        checks:
+          - null_count
+          - min
+          - max
+          - exact_match
+          - hash
+
+      - source_col: duedate
+        target_col: DUEDATE
+        data_type: date
+        checks:
+          - null_count
+          - min
+          - max
+          - exact_match
+          - hash
+
+      - source_col: shipdate
+        target_col: SHIPDATE
+        data_type: date
+        checks:
+          - null_count
+          - min
+          - max
+          - exact_match
+          - hash
+
+      - source_col: revisionnumber
+        target_col: REVISIONNUMBER
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+  - name: fact_reseller_sales
+    sources:
+      - table: raw.fact_reseller_sales_validation
+
+    targets:
+      - table: ADVENTUREWORKSDW.TARGET.FACTRESELLERSALES_VALIDATION
+
+    source_where:
+    target_where:
+
+    compare_columns:
+      - source_col: salesordernumber
+        target_col: SALESORDERNUMBER
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: salesorderlinenumber
+        target_col: SALESORDERLINENUMBER
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: revisionnumber
+        target_col: REVISIONNUMBER
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: orderquantity
+        target_col: ORDERQUANTITY
+        data_type: integer
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - exact_match
+          - hash
+
+      - source_col: unitprice
+        target_col: UNITPRICE
+        data_type: numeric
+        tolerance: 0.01
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+
+      - source_col: unitpricediscountpct
+        target_col: UNITPRICEDISCOUNTPCT
+        data_type: numeric
+        tolerance: 0.0001
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+
+      - source_col: extendedamount
+        target_col: EXTENDEDAMOUNT
+        data_type: numeric
+        tolerance: 0.01
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+
+      - source_col: discountamount
+        target_col: DISCOUNTAMOUNT
+        data_type: numeric
+        tolerance: 0.01
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+
+      - source_col: salesamount
+        target_col: SALESAMOUNT
+        data_type: numeric
+        tolerance: 0.01
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+
+      - source_col: taxamt
+        target_col: TAXAMT
+        data_type: numeric
+        tolerance: 0.01
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+
+      - source_col: freight
+        target_col: FREIGHT
+        data_type: numeric
+        tolerance: 0.01
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+
+      - source_col: carriertrackingnumber
+        target_col: CARRIERTRACKINGNUMBER
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: customerponumber
+        target_col: CUSTOMERPONUMBER
+        data_type: string
+        checks:
+          - null_count
+          - distinct_count
+          - exact_match
+          - hash
+
+      - source_col: orderdate
+        target_col: ORDERDATE
+        data_type: date
+        checks:
+          - null_count
+          - min
+          - max
+          - exact_match
+          - hash
+
+      - source_col: duedate
+        target_col: DUEDATE
+        data_type: date
+        checks:
+          - null_count
+          - min
+          - max
+          - exact_match
+          - hash
+
+      - source_col: shipdate
+        target_col: SHIPDATE
+        data_type: date
+        checks:
+          - null_count
+          - min
+          - max
+          - exact_match
+          - hash

@@ -1,0 +1,119 @@
+# ETL Validation Utility - Configuration File
+# All database credentials must be set as environment variables in .env file
+
+source:
+  db_type: duckdb                   # duckdb | postgres | mssql | mysql | snowflake
+  path: ${SOURCE_DUCKDB_PATH}       # DuckDB only: file path
+  host: ${SOURCE_DB_HOST}           # postgres | mssql | mysql | snowflake
+  port: ${SOURCE_DB_PORT}           # postgres | mssql | mysql | snowflake
+  database: ${SOURCE_DB_NAME}       # postgres | mssql | mysql | snowflake
+  schema: ${SOURCE_DB_SCHEMA}       # postgres | mssql | mysql | snowflake
+  username: ${SOURCE_DB_USER}       # postgres | mssql | mysql | snowflake
+  password: ${SOURCE_DB_PASSWORD}   # postgres | mssql | mysql | snowflake
+
+target:
+  db_type: duckdb                   # duckdb | postgres | mssql | mysql | snowflake
+  path: ${TARGET_DUCKDB_PATH}       # DuckDB only: file path
+  host: ${TARGET_DB_HOST}           # postgres | mssql | mysql | snowflake
+  port: ${TARGET_DB_PORT}           # postgres | mssql | mysql | snowflake
+  database: ${TARGET_DB_NAME}       # postgres | mssql | mysql | snowflake
+  schema: ${TARGET_DB_SCHEMA}       # postgres | mssql | mysql | snowflake
+  username: ${TARGET_DB_USER}       # postgres | mssql | mysql | snowflake
+  password: ${TARGET_DB_PASSWORD}   # postgres | mssql | mysql | snowflake
+
+settings:
+  batch_size: 10000                 # Number of rows per batch in Layer 1
+  default_tolerance: 0.01           # Default decimal tolerance if not set per column
+  null_token: "__NULL__"            # Token used to represent NULL values in hashing
+  date_format: "%Y-%m-%d"           # Date format used when hashing date values
+  decimal_places: 10                # Decimal places used when hashing decimal values
+  hash_algorithm: md5               # md5 or sha256
+  normalize_strings: false          # If true, trim and uppercase strings before hashing
+
+  # Date numeric conversion — used for stddev and distribution stats
+  # Set to any valid date your data starts from — no hardcoding
+  date_numeric_epoch: "1900-01-01"  # Reference date for converting dates to integers
+
+  # Date format validation — list of formats considered valid in your project
+  # If a date value does not match any of these formats it is flagged as a format issue
+  valid_date_formats:
+    - "%Y-%m-%d"
+    - "%d/%m/%Y"
+    - "%m/%d/%Y"
+    - "%Y%m%d"
+
+  # Currency conversion — set exchange_rate per column in column config
+  # Example: source stores USD, target stores EUR at rate 0.92
+  # If not needed leave empty
+  default_currency_tolerance: 0.05  # Allowed diff % for currency-converted columns
+
+tables:
+  - source_table: employees
+    target_table: dim_employees
+    primary_key: [employee_id]
+
+    source_where: "hire_date IS NOT NULL AND status <> 'TERMINATED'"
+    target_where: null
+
+    columns:
+      - source_col: employee_id
+        target_col: employee_id
+        data_type: integer
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: first_name
+        target_col: first_name
+        data_type: string
+        checks:
+          - null_count
+          - exact_match
+          - hash
+          - truncation_indicator
+          - category_check
+
+      - source_col: last_name
+        target_col: last_name
+        data_type: string
+        checks:
+          - null_count
+          - exact_match
+          - hash
+
+      - source_col: hire_date
+        target_col: hiring_date
+        data_type: date
+        checks:
+          - null_count
+          - min
+          - max
+          - exact_match
+          - hash
+          - date_distribution
+
+      - source_col: salary
+        target_col: adjusted_salary
+        data_type: decimal
+        source_expression: "salary * 1.1"
+        target_expression: "adjusted_salary"
+        tolerance: 0.01
+        checks:
+          - null_count
+          - min
+          - max
+          - sum
+          - avg
+          - exact_match
+          - hash
+          - decimal_scale_check
+
+    validation_layers:
+      run_layer1: false             # Row-by-row: slow for large tables, enable explicitly
+      run_layer2: true              # Hash + cell drill-down
+      run_layer3: true              # Statistical/aggregation
+
+report:
+  output_format: [csv, html]
+  output_path: ./output/
